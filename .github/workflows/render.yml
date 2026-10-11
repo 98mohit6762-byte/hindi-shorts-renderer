@@ -1,0 +1,31 @@
+
+name: Render Test Video
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Render vertical video
+        run: |
+          mkdir -p output
+          ffmpeg -y \
+            -f lavfi \
+            -i "color=c=black:s=1080x1920:r=24:d=5" \
+            -vf "drawtext=text='KABHI HAAR MAT MANO':fontcolor=white:fontsize=58:x=(w-text_w)/2:y=(h-text_h)/2" \
+            -c:v libx264 \
+            -pix_fmt yuv420p \
+            output/test_video.mp4
+
+      - name: Save rendered video
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-video
+          path: output/test_video.mp4
